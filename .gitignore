@@ -23,6 +23,25 @@
 # misc
 .DS_Store
 *.pem
+*.p12
+*.key
+*.pfx
+*.crt
+*.cer
+*.p7b
+*.p7c
+*.p7s
+*.p12
+*.pem
+*.pfx
+*.key
+*.gpg
+*.asc
+*.sst
+*.sst.enc
+*.sst.enc.key
+*.sst.enc.iv
+*.sst.enc.tag
 
 # debug
 npm-debug.log*
@@ -37,14 +56,56 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
 .genkit/*
-.env*
 
-# firebase
+# Firebase
 firebase-debug.log
 firestore-debug.log
+
 # Android app
 android-app/
 
 # Gradle
 gradle-*/
+
+# Secrets and credentials
+**/secrets/**
+**/credentials/**
+**/keys/**
+**/*.json
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/*.crt
+**/*.cer
+**/*.gpg
+**/*.asc
+**/Key Info/**
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
