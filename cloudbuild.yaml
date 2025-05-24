@@ -1,44 +1,125 @@
+# Cloud Build configuration for Marta web application
+# This file defines the build steps for building and deploying the application to Cloud Run
+
+# Default substitutions for Cloud Build triggers
+substitutions:
+  _SERVICE_NAME: marta-webapp
+  _REGION: us-central1  # Changed from us-south1 to us-central1 for better availability
+  _PLATFORM: managed
+  _ENV_SECRET: marta-env-secrets
+
+# Build steps
 steps:
+  # Install dependencies
+  - name: 'node:18'
+    id: 'npm-install'
+    entrypoint: 'npm'
+    args: ['install']
+    waitFor: ['-']  # Start immediately
+
   # Build the application
   - name: 'node:18'
-    entrypoint: npm
-    args: ['install']
-    id: 'npm-install'
-
-  - name: 'node:18'
-    entrypoint: npm
-    args: ['run', 'build']
     id: 'npm-build'
+    entrypoint: 'npm'
+    args: ['run', 'build']
+    env:
+      - 'NODE_ENV=production'
+    waitFor: ['npm-install']
 
-  # Build the Docker image
+  # Build the Docker image with caching
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/marta-webapp:latest', '.']
     id: 'docker-build'
+    args: 
+      - 'build'
+      - '--build-arg'
+      - 'NODE_ENV=production'
+      - '--cache-from'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+      - '--file'
+      - 'Dockerfile'
+      - '.'
+    waitFor: ['npm-build']
 
-  # Push the Docker image
+  # Push the Docker image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/marta-webapp:latest']
     id: 'docker-push'
+    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA']
+    waitFor: ['docker-build']
 
-  # Deploy to Cloud Run with secrets from Secret Manager
+  # Push the latest tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'docker-push-latest'
+    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest']
+    waitFor: ['docker-push']
+
+  # Deploy to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy'
     args:
       - 'run'
       - 'deploy'
-      - 'marta-webapp'
+      - '${_SERVICE_NAME}'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/marta-webapp:latest'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
       - '--platform'
-      - 'managed'
+      - '${_PLATFORM}'
       - '--region'
-      - 'us-south1'
+      - '${_REGION}'
       - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--cpu'
+      - '1'
+      - '--memory'
+      - '512Mi'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '3'
+      - '--concurrency'
+      - '80'
+      - '--timeout'
+      - '300s'
       - '--set-secrets'
       - 'GOOGLE_CLIENT_ID=marta-google-client-id:latest,GOOGLE_CLIENT_SECRET=marta-google-client-secret:latest,NEXTAUTH_SECRET=marta-nextauth-secret:latest,GOOGLE_API_KEY=marta-google-api-key:latest'
       - '--set-env-vars'
-      - 'NEXTAUTH_URL=https://marta-webapp-${PROJECT_NUMBER}-uc.a.run.app'
-    id: 'deploy'
+      - 'NODE_ENV=production,NEXT_PUBLIC_APP_URL=https://${_SERVICE_NAME}-${PROJECT_NUMBER}-uc.run.app,NEXTAUTH_URL=https://${_SERVICE_NAME}-${PROJECT_NUMBER}-uc.run.app,NEXT_TELEMETRY_DISABLED=1'
+    waitFor: ['docker-push-latest']
 
-# Images to be pushed to Container Registry
+  # Update the latest tag to point to the newly built image
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'update-latest-tag'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud container images add-tag gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA \
+          gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest --quiet
+    waitFor: ['deploy']
+
+# Artifacts to be pushed to Container Registry
 images:
-  - 'gcr.io/$PROJECT_ID/marta-webapp:latest'
+  - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+
+# Timeout for the build (in seconds)
+timeout: 1800s  # 30 minutes
+
+# Options for the build
+options:
+  # Enable Docker layer caching
+  logging: CLOUD_LOGGING_ONLY
+  # Machine type for the build
+  machineType: 'E2_HIGHCPU_8'
+  # Disk size for the build
+  diskSizeGb: '50'
+  # Network configuration
+  logging: 'CLOUD_LOGGING_ONLY'
+  # Substitution variables
+  substitution_option: 'ALLOW_LOOSE'
+  # Source provenance
+  source_provenance_hash: ['SHA256', 'SHA512']
