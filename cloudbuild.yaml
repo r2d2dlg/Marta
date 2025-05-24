@@ -4,7 +4,7 @@
 # Default substitutions for Cloud Build triggers
 substitutions:
   _SERVICE_NAME: marta-webapp
-  _REGION: us-central1  # Changed from us-south1 to us-central1 for better availability
+  _REGION: us-central1  # Using us-central1 for better availability
   _PLATFORM: managed
   _ENV_SECRET: marta-env-secrets
 
@@ -88,7 +88,7 @@ steps:
       - 'GOOGLE_CLIENT_ID=marta-google-client-id:latest,GOOGLE_CLIENT_SECRET=marta-google-client-secret:latest,NEXTAUTH_SECRET=marta-nextauth-secret:latest,GOOGLE_API_KEY=marta-google-api-key:latest'
       - '--set-env-vars'
       - 'NODE_ENV=production,NEXT_PUBLIC_APP_URL=https://${_SERVICE_NAME}-${PROJECT_NUMBER}-uc.run.app,NEXTAUTH_URL=https://${_SERVICE_NAME}-${PROJECT_NUMBER}-uc.run.app,NEXT_TELEMETRY_DISABLED=1'
-    waitFor: ['docker-push-latest']
+    waitFor: ['check-service', 'docker-push-latest']
 
   # Update the latest tag to point to the newly built image
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
