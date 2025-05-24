@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="background">@color/grey_99</color>
+    <color name="black">#FF000000</color>
+    <color name="dark_blue_10">#001D36</color>
+    <color name="dark_blue_30">#1E4975</color>
+    <color name="dark_blue_40">#4F5F8D</color>
+    <color name="dark_blue_80">#A6C8FF</color>
+    <color name="dark_blue_90">#D6E3FF</color>
+    <color name="dark_blue_grey_30">#45464F</color>
+    <color name="dark_blue_grey_50">#767680</color>
+    <color name="dark_blue_grey_60">#8E8E99</color>
+    <color name="dark_blue_grey_80">#C5C6D0</color>
+    <color name="dark_blue_grey_90">#E2E2EB</color>
+    <color name="error">@color/red_40</color>
+    <color name="grey_10">#1C1B1F</color>
+    <color name="grey_20">#313033</color>
+    <color name="grey_80">#C8C5CA</color>
+    <color name="grey_90">#E6E1E5</color>
+    <color name="grey_95">#F6F0FF</color>
+    <color name="grey_99">#FDFBFF</color>
+    <color name="info">#2196F3</color>
+    <color name="on_background">@color/grey_10</color>
+    <color name="on_surface">@color/grey_10</color>
+    <color name="on_surface_variant">@color/dark_blue_grey_30</color>
+    <color name="outline">@color/dark_blue_grey_60</color>
+    <color name="outline_variant">@color/dark_blue_grey_80</color>
+    <color name="purple_10">#21005D</color>
+    <color name="purple_200">@color/purple_80</color>
+    <color name="purple_30">#4F378B</color>
+    <color name="purple_40">#6750A4</color>
+    <color name="purple_700">@color/purple_30</color>
+    <color name="purple_80">#D0BCFF</color>
+    <color name="purple_90">#EADDFF</color>
+    <color name="red_10">#410002</color>
+    <color name="red_30">#93000A</color>
+    <color name="red_40">#BA1A1A</color>
+    <color name="red_80">#FFB4AB</color>
+    <color name="red_90">#FFDAD6</color>
+    <color name="success">#4CAF50</color>
+    <color name="surface">@color/grey_99</color>
+    <color name="surface_variant">@color/dark_blue_grey_90</color>
+    <color name="teal_10">#001F24</color>
+    <color name="teal_200">@color/teal_80</color>
+    <color name="teal_30">#1E4D54</color>
+    <color name="teal_40">#006876</color>
+    <color name="teal_80">#4FD8E8</color>
+    <color name="teal_90">#9CE8FC</color>
+    <color name="text_disabled">@color/dark_blue_grey_80</color>
+    <color name="text_hint">@color/dark_blue_grey_60</color>
+    <color name="text_primary">@color/grey_10</color>
+    <color name="text_secondary">@color/dark_blue_grey_50</color>
+    <color name="warning">#FFC107</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Marta</string>
+    <string name="assistant_avatar">Assistant Avatar</string>
+    <string name="error">Error</string>
+    <string name="ok">OK</string>
+    <string name="send">Send</string>
+    <string name="type_message">Type a message...</string>
+    <string name="user_avatar">User Avatar</string>
+    <style name="Theme.Marta" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/purple_40</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/purple_90</item>
+        <item name="colorOnPrimaryContainer">@color/purple_10</item>
+        
+        
+        <item name="colorSecondary">@color/dark_blue_40</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/dark_blue_90</item>
+        <item name="colorOnSecondaryContainer">@color/dark_blue_10</item>
+        
+        
+        <item name="colorTertiary">@color/teal_40</item>
+        <item name="colorOnTertiary">@color/white</item>
+        <item name="colorTertiaryContainer">@color/teal_90</item>
+        <item name="colorOnTertiaryContainer">@color/teal_10</item>
+        
+        
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="23">true</item>
+        
+        
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="27">true</item>
+        
+        
+        <item name="android:windowBackground">@color/grey_99</item>
+        <item name="android:colorBackground">@color/grey_99</item>
+        
+        
+        <item name="colorSurface">@color/grey_99</item>
+        <item name="colorOnSurface">@color/grey_10</item>
+        <item name="colorSurfaceVariant">@color/dark_blue_grey_90</item>
+        <item name="colorOnSurfaceVariant">@color/dark_blue_grey_30</item>
+        
+        
+        <item name="colorError">@color/red_40</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/red_90</item>
+        <item name="colorOnErrorContainer">@color/red_10</item>
+        
+        
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+</resources>

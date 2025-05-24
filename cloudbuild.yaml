@@ -1,0 +1,44 @@
+steps:
+  # Build the application
+  - name: 'node:18'
+    entrypoint: npm
+    args: ['install']
+    id: 'npm-install'
+
+  - name: 'node:18'
+    entrypoint: npm
+    args: ['run', 'build']
+    id: 'npm-build'
+
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/marta-webapp:latest', '.']
+    id: 'docker-build'
+
+  # Push the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/marta-webapp:latest']
+    id: 'docker-push'
+
+  # Deploy to Cloud Run with secrets from Secret Manager
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'marta-webapp'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/marta-webapp:latest'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-south1'
+      - '--allow-unauthenticated'
+      - '--set-secrets'
+      - 'GOOGLE_CLIENT_ID=marta-google-client-id:latest,GOOGLE_CLIENT_SECRET=marta-google-client-secret:latest,NEXTAUTH_SECRET=marta-nextauth-secret:latest,GOOGLE_API_KEY=marta-google-api-key:latest'
+      - '--set-env-vars'
+      - 'NEXTAUTH_URL=https://marta-webapp-${PROJECT_NUMBER}-uc.a.run.app'
+    id: 'deploy'
+
+# Images to be pushed to Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/marta-webapp:latest'

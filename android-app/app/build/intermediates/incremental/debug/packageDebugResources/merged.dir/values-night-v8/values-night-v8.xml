@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="error">@color/red_80</color>
+    <style name="Theme.Marta" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/purple_80</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">@color/purple_30</item>
+        <item name="colorOnPrimaryContainer">@color/purple_90</item>
+        
+        
+        <item name="colorSecondary">@color/dark_blue_80</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondaryContainer">@color/dark_blue_30</item>
+        <item name="colorOnSecondaryContainer">@color/dark_blue_90</item>
+        
+        
+        <item name="colorTertiary">@color/teal_80</item>
+        <item name="colorOnTertiary">@color/black</item>
+        <item name="colorTertiaryContainer">@color/teal_30</item>
+        <item name="colorOnTertiaryContainer">@color/teal_90</item>
+        
+        
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="23">false</item>
+        
+        
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="27">false</item>
+        
+        
+        <item name="android:windowBackground">@color/grey_10</item>
+        <item name="android:colorBackground">@color/grey_10</item>
+        
+        
+        <item name="colorSurface">@color/grey_10</item>
+        <item name="colorOnSurface">@color/grey_90</item>
+        <item name="colorSurfaceVariant">@color/dark_blue_grey_30</item>
+        <item name="colorOnSurfaceVariant">@color/dark_blue_grey_80</item>
+        
+        
+        <item name="colorError">@color/red_80</item>
+        <item name="colorOnError">@color/black</item>
+        <item name="colorErrorContainer">@color/red_30</item>
+        <item name="colorOnErrorContainer">@color/red_90</item>
+        
+        
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+    <style name="ThemeOverlay.Material3.DayNight.NoActionBar" parent="">
+        
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">@color/purple_700</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+        
+        
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondaryContainer">@color/teal_200</item>
+        <item name="colorOnSecondaryContainer">@color/black</item>
+        
+        
+        <item name="android:colorBackground">@color/black</item>
+        <item name="colorOnBackground">@color/white</item>
+        
+        
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurfaceVariant">#1E1E1E</item>
+        <item name="colorOnSurfaceVariant">#E0E0E0</item>
+        
+        
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        
+        
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
