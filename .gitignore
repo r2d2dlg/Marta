@@ -45,3 +45,6 @@ firebase-debug.log
 firestore-debug.log
 # Android app
 android-app/
+
+# Gradle
+gradle-*/
