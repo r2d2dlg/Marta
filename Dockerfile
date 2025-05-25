@@ -22,6 +22,11 @@ RUN npm ci --only=production
 # Copy the rest of the application
 COPY . .
 
+# Create a default next.config.js if it doesn't exist
+RUN if [ ! -f next.config.js ]; then \
+      echo "module.exports = { output: 'standalone' };" > next.config.js; \
+    fi
+
 # Build the application
 RUN npm run build
 
