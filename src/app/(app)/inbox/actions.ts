@@ -4,8 +4,8 @@ import fs from 'fs'; import path from 'path';
 
 // Import server-side functions and authOptions
 import { getServerSession } from "next-auth";
-// Corrected import path using the alias
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+// Import authOptions from the new location
+import { authOptions } from "@/auth";
 // Import the server-side Genkit flow functions
 import { summarizeEmails, SummarizeEmailsInput } from '@/ai/flows/summarize-emails';
 import { suggestEmailResponse, SuggestEmailResponseInput } from '@/ai/flows/suggest-email-responses';
