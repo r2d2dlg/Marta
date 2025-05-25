@@ -14,7 +14,7 @@ steps:
   - name: 'node:18'
     id: 'npm-install'
     entrypoint: 'npm'
-    args: ['install']
+    args: ['ci', '--only=production']
     waitFor: ['-']  # Start immediately
 
   # Build the application

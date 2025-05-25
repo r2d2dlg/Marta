@@ -13,21 +13,17 @@ ENV NODE_ENV=production \
 # Install system dependencies
 RUN apk add --no-cache libc6-compat
 
-# Install pnpm (faster and more efficient than npm)
-RUN npm install -g pnpm@8
-
 # Copy package files for better layer caching
-COPY package*.json pnpm-lock.yaml* ./
-
+COPY package*.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile --prod=false
+RUN npm ci --only=production
 
 # Copy the rest of the application
 COPY . .
 
 # Build the application
-RUN pnpm run build
+RUN npm run build
 
 # =======================================
 # Stage 2: Create the production image
