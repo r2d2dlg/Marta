@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 93.3%; /* Light Gray #EEEEEE */
+    --foreground: 240 10% 3.9%; /* Dark Gray for text */
+
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 174 45% 51%; /* Calm Teal #4DB6AC */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 0 0% 90%; /* Slightly darker gray */
+    --secondary-foreground: 240 10% 3.9%;
+
+    --muted: 0 0% 85%; /* Darker gray for muted elements */
+    --muted-foreground: 240 5% 50%; /* Lighter text for muted */
+
+    --accent: 16 100% 70%; /* Coral #FF8A65 */
+    --accent-foreground: 0 0% 100%; /* White */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 80%; /* Darker border for visibility */
+    --input: 0 0% 80%;
+    --ring: 174 45% 51%; /* Primary color for rings */
+
+    --radius: 0.5rem;
+
+    /* Sidebar specific theme */
+    --sidebar-background: 0 0% 100%; /* White sidebar */
+    --sidebar-foreground: 240 10% 3.9%; /* Dark text in sidebar */
+    --sidebar-border: 0 0% 89.8%; /* Border for sidebar elements */
+    --sidebar-primary: 174 45% 51%; /* Teal for active/primary in sidebar */
+    --sidebar-primary-foreground: 0 0% 100%; /* White text on teal */
+    --sidebar-accent: 174 45% 95%; /* Very light teal for hover in sidebar */
+    --sidebar-accent-foreground: 174 45% 30%; /* Darker teal text on hover */
+    --sidebar-ring: 174 45% 51%; /* Teal for focus rings within sidebar */
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 174 45% 51%; /* Calm Teal */
+    --primary-foreground: 0 0% 100%; /* White text */
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 16 100% 70%; /* Coral */
+    --accent-foreground: 0 0% 100%; /* White text */
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 174 45% 51%;
+
+    /* Dark Sidebar specific theme */
+    --sidebar-background: 240 5.9% 10%; /* Dark gray for sidebar */
+    --sidebar-foreground: 0 0% 95%; /* Light text in sidebar */
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-primary: 174 45% 51%; /* Teal for active/primary in dark sidebar */
+    --sidebar-primary-foreground: 0 0% 100%; /* White text */
+    --sidebar-accent: 174 45% 20%; /* Darker teal for hover in dark sidebar */
+    --sidebar-accent-foreground: 174 45% 80%; /* Lighter teal text */
+    --sidebar-ring: 174 45% 51%;
+
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
