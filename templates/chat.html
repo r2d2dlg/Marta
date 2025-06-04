@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Chat con Marta - Marta AI{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-semibold mb-6 text-sky-700">Chat con Marta</h1>
+    <div id="chatLog" class="mb-4 border border-slate-300 rounded-md p-4 h-96 overflow-y-auto bg-slate-50 space-y-3">
+        <div class="p-2 rounded-md bg-sky-100 text-sky-800 self-start max-w-xl">
+            <strong>Marta:</strong> ¡Hola! Soy Marta. ¿En qué puedo ayudarte hoy?
+        </div>
+    </div>
+    <form id="chatForm" class="flex space-x-3">
+        <input type="text" id="chatInput" placeholder="Escribe tu mensaje a Marta..." required class="flex-grow p-3 border border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
+        <button type="submit" class="px-6 py-3 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors font-medium">Enviar</button>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatLog = document.getElementById('chatLog');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        chatForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const userMessage = chatInput.value.trim();
+            if (!userMessage) return;
+            appendMessageToLog('Tú', userMessage, true);
+            chatInput.value = '';
+            chatInput.disabled = true;
+            const thinkingDiv = appendMessageToLog('Marta', 'Pensando...', false, true);
+            fetch("{{ url_for('api_send_chat_message') }}", { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => {
+                if (!response.ok) { return response.json().then(err => { throw new Error(err.error || 'Error de red o del servidor') }); }
+                return response.json();
+            })
+            .then(data => {
+                if (thinkingDiv && thinkingDiv.parentNode === chatLog) chatLog.removeChild(thinkingDiv);
+                appendMessageToLog('Marta', data.reply);
+            })
+            .catch(error => {
+                console.error('Error en chat:', error);
+                if (thinkingDiv && thinkingDiv.parentNode === chatLog) chatLog.removeChild(thinkingDiv);
+                appendMessageToLog('Marta', 'Lo siento, ocurrió un error al procesar tu mensaje: ' + error.message, false, false, true);
+            })
+            .finally(() => {
+                chatInput.disabled = false; 
+                chatInput.focus();
+            });
+        });
+        function appendMessageToLog(sender, message, isUser = false, isThinking = false, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('p-2', 'rounded-md', 'max-w-xl', 'break-words');
+            let bgColor = 'bg-sky-100'; let textColor = 'text-sky-800'; let align = 'self-start';
+            if (isUser) { bgColor = 'bg-green-100'; textColor = 'text-green-800'; align = 'self-end';}
+            else if (isError) { bgColor = 'bg-red-100'; textColor = 'text-red-800';}
+            else if (isThinking) { bgColor = 'bg-slate-200'; textColor = 'text-slate-600'; message = '<span class="italic">' + message + '</span>';}
+            messageDiv.classList.add(bgColor, textColor, align);
+            
+            const messageText = message ? message.toString() : '';
+            const messageContent = messageText.replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = '<strong>' + sender + ':</strong> ' + messageContent;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight; 
+            return messageDiv; 
+        }
+    });
+</script>
+{% endblock %}

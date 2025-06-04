@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} - Marta AI{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-semibold text-sky-700">{{ page_title }}</h1>
+    </div>
+    {% if correos %}
+        <ul class="space-y-4">
+            {% for correo in correos %}
+            <li class="border border-slate-300 p-4 rounded-md hover:shadow-md transition-shadow duration-200">
+                <a href="{{ url_for('view_email', message_id=correo.id) }}" class="block">
+                    <div class="flex justify-between items-center mb-1">
+                        <h2 class="text-lg font-medium text-sky-600">{{ correo.subject if correo.subject else '(Sin Asunto)' }}</h2>
+                        <span class="text-xs text-slate-500">{{ correo.date_str if correo.date_str else correo.date }}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-2"><strong>De:</strong> {{ correo.from }}</p>
+                    <p class="text-sm text-slate-500 email-snippet"><em>{{ correo.snippet }}</em></p>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-slate-600">{{ no_emails_message if no_emails_message else "No hay correos para mostrar." }}</p>
+    {% endif %}
+    <div class="mt-6">
+        <a href="{{ url_for('index', view=active_view if active_view else 'unread') }}" class="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors">Refrescar Vista Actual</a>
+    </div>
+</div>
+{% endblock %}
