@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
+import { GoogleAIService } from '@/ai/google-ai-service';
+
+// Initialize Google AI Service for enhanced analysis
+const googleAI = new GoogleAIService({
+  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID || '',
+  location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1',
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +17,9 @@ export async function POST(request: NextRequest) {
       clientCompany, 
       messageText, 
       clientHistory,
-      phone 
+      phone,
+      geminiPreAnalysis,
+      useGeminiPreAnalysis = false
     } = body;
 
     if (!clientName || !messageText) {
@@ -19,12 +29,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Analyze message with Marta AI
+    // Analyze message with Marta AI (enhanced with Gemini pre-analysis)
     const analysis = await analyzeMessage({
       clientName,
       clientCompany: clientCompany || '',
       messageText,
       clientHistory: clientHistory || '',
+      geminiPreAnalysis,
+      useGeminiPreAnalysis,
     });
 
     return NextResponse.json({
@@ -46,24 +58,51 @@ async function analyzeMessage(input: {
   clientCompany: string;
   messageText: string;
   clientHistory: string;
+  geminiPreAnalysis?: any;
+  useGeminiPreAnalysis?: boolean;
 }) {
-  const { clientName, clientCompany, messageText, clientHistory } = input;
+  const { clientName, clientCompany, messageText, clientHistory, geminiPreAnalysis, useGeminiPreAnalysis } = input;
 
-  const systemPrompt = `
-You are Marta, an AI assistant specialized in customer relationship management for Latin American businesses.
-Analyze WhatsApp messages and provide structured insights for the business team.
+  try {
+    // Use Google AI Service for comprehensive analysis
+    const googleAnalysis = await googleAI.analyzeText(messageText);
+    
+    // Enhanced AI prompt with Google AI insights AND Gemini pre-analysis
+    const systemPrompt = `
+You are Marta, an advanced AI assistant specialized in customer relationship management for Latin American businesses.
+You have access to comprehensive Google AI analysis ${useGeminiPreAnalysis ? 'AND Gemini document analysis' : ''} and should provide enhanced insights.
+
+Google AI Analysis Results:
+- Sentiment Score: ${googleAnalysis.sentiment.score} (${googleAnalysis.sentiment.label})
+- Detected Language: ${googleAnalysis.language}
+- Entities: ${JSON.stringify(googleAnalysis.entities)}
+- Categories: ${JSON.stringify(googleAnalysis.categories)}
+
+${useGeminiPreAnalysis && geminiPreAnalysis ? `
+Gemini Pre-Analysis Results:
+- Priority: ${geminiPreAnalysis.priority}
+- Category: ${geminiPreAnalysis.category}
+- Sentiment: ${geminiPreAnalysis.sentiment}
+- Language: ${geminiPreAnalysis.language}
+- Extracted Entities: ${JSON.stringify(geminiPreAnalysis.entities)}
+- Urgency Indicators: ${JSON.stringify(geminiPreAnalysis.urgencyIndicators)}
+` : ''}
 
 Respond with a JSON object containing:
 - summary: Brief summary of the message
-- sentiment: "positive", "negative", "neutral", or "urgent"
+- sentiment: "positive", "negative", "neutral", or "urgent" (enhanced with all AI data)
 - responseRequired: boolean indicating if a response is needed
 - suggestedResponse: Spanish response if responseRequired is true
-- categories: Array of categories like ["inquiry", "support", "complaint", "information"]
+- categories: Array of enhanced categories based on all AI analysis
 - priority: "low", "medium", "high", or "urgent"
-- extractedInfo: Object with any useful extracted information
+- extractedInfo: Enhanced information extraction using all AI data
+- confidence: Confidence score (0-1) based on all AI analysis
+- languageDetected: Language detected by AI
+- translation: Auto-translation if message is not in Spanish
+${useGeminiPreAnalysis ? '- geminiEnhanced: true to indicate Gemini pre-analysis was used' : ''}
 `;
 
-  const userPrompt = `
+    const userPrompt = `
 Cliente: ${clientName}
 Empresa: ${clientCompany || 'No especificada'}
 Historial previo: ${clientHistory || 'Sin historial previo'}
@@ -71,33 +110,69 @@ Historial previo: ${clientHistory || 'Sin historial previo'}
 Nuevo mensaje de WhatsApp:
 "${messageText}"
 
-Analiza este mensaje y proporciona tu evaluación en formato JSON.
+Using the ${useGeminiPreAnalysis ? 'Google AI analysis AND Gemini pre-analysis' : 'Google AI analysis'} provided above, give me your enhanced evaluation in JSON format.
+Focus on the entities detected, sentiment analysis, and provide intelligent categorization.
+${useGeminiPreAnalysis ? 'Leverage the Gemini pre-analysis to enhance your understanding and provide even more accurate insights.' : ''}
 `;
 
-  try {
     const response = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'vertexai/gemini-1.5-pro', // Use Vertex AI Gemini Pro
       system: systemPrompt,
       prompt: userPrompt,
       config: {
-        temperature: 0.3,
-        maxOutputTokens: 1000,
+        temperature: 0.2, // Lower temperature for more consistent analysis
+        maxOutputTokens: 1500,
+        topP: 0.8,
+        topK: 40,
       },
     });
 
     const analysis = response.text();
     
-    // Try to parse JSON response
     try {
-      return JSON.parse(analysis);
+      const parsedAnalysis = JSON.parse(analysis);
+      
+      // Enhance with Google AI data
+      return {
+        ...parsedAnalysis,
+        googleAI: {
+          sentiment: googleAnalysis.sentiment,
+          entities: googleAnalysis.entities,
+          categories: googleAnalysis.categories,
+          language: googleAnalysis.language,
+          translation: googleAnalysis.translation,
+        },
+        enhancedWithGoogleAI: true,
+      };
     } catch (parseError) {
-      console.error('Error parsing AI response, using fallback');
-      return createFallbackAnalysis(clientName, messageText);
+      console.error('Error parsing enhanced AI response, using Google AI fallback');
+      return createEnhancedFallbackAnalysis(clientName, messageText, googleAnalysis);
     }
   } catch (error) {
-    console.error('Error calling AI:', error);
+    console.error('Error in enhanced analysis, falling back to basic:', error);
     return createFallbackAnalysis(clientName, messageText);
   }
+}
+
+function createEnhancedFallbackAnalysis(clientName: string, messageText: string, googleAnalysis: any) {
+  return {
+    summary: `Mensaje de ${clientName}: ${messageText.substring(0, 100)}${messageText.length > 100 ? '...' : ''}`,
+    sentiment: googleAnalysis.sentiment.label,
+    responseRequired: true,
+    suggestedResponse: `Hola ${clientName}, gracias por tu mensaje. Hemos recibido tu consulta y te responderemos lo antes posible.`,
+    categories: googleAnalysis.categories.length > 0 ? googleAnalysis.categories.map((c: any) => c.name) : ['general'],
+    priority: googleAnalysis.sentiment.score < -0.5 ? 'high' : 'medium',
+    extractedInfo: {
+      customerNeed: 'Consulta general',
+      requestType: 'información',
+      entities: googleAnalysis.entities,
+    },
+    confidence: 0.7,
+    languageDetected: googleAnalysis.language,
+    translation: googleAnalysis.translation,
+    googleAI: googleAnalysis,
+    enhancedWithGoogleAI: true,
+  };
 }
 
 function createFallbackAnalysis(clientName: string, messageText: string) {
@@ -112,5 +187,7 @@ function createFallbackAnalysis(clientName: string, messageText: string) {
       customerNeed: 'Consulta general',
       requestType: 'información',
     },
+    confidence: 0.5,
+    enhancedWithGoogleAI: false,
   };
 }
