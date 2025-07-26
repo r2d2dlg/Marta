@@ -47,12 +47,10 @@ export const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   // debug: process.env.NODE_ENV === 'development',
 };
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth(authOptions);
+export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
+
+

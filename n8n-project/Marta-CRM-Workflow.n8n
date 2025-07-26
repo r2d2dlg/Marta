@@ -1,0 +1,110 @@
+{
+  "name": "Marta CRM Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "your-webhook-id"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/client/{{$json.body.email}}",
+        "options": {}
+      },
+      "name": "Get Client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/marta",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "{{$json.body.message}}"
+            }
+          ]
+        }
+      },
+      "name": "Process with Marta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/client/{{$json.body.email}}",
+        "method": "PUT",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "notes",
+              "value": "{{$node[\"Process with Marta\"].json.response}}"
+            }
+          ]
+        }
+      },
+      "name": "Update CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client": {
+      "main": [
+        [
+          {
+            "node": "Process with Marta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process with Marta": {
+      "main": [
+        [
+          {
+            "node": "Update CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "1"
+}

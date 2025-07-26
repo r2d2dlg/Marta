@@ -1,41 +1,35 @@
 import { NextResponse } from 'next/server';
-import { queryProjectDatabase } from '@/ai/flows/query-project-database';
-
-// Enable CORS
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
-}
 
 export async function POST(request: Request) {
   try {
-    const { query } = await request.json();
-    
+    const body = await request.json();
+    const { query } = body;
+
     if (!query) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Query is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-      );
+      return NextResponse.json({ error: 'Query is required' }, { status: 400 });
     }
 
-    const response = await queryProjectDatabase(query);
-    return new NextResponse(
-      JSON.stringify({ response }),
-      { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-    );
+    // Forward the request to the Python backend
+    const pythonBackendUrl = 'http://localhost:5000/marta';
+    const response = await fetch(pythonBackendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Error from Python backend:', errorData);
+      return NextResponse.json({ error: 'Error from backend service' }, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+
   } catch (error) {
-    console.error('Error in ask-marta API:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Failed to process your request' }),
-      { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-    );
+    console.error('Error in /api/ask-marta:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

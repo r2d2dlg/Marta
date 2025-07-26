@@ -7,6 +7,8 @@ import pytz
 from langchain_google_vertexai import ChatVertexAI
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import (
     ChatPromptTemplate, 
     SystemMessagePromptTemplate, 
@@ -32,7 +34,14 @@ llm_instance = None
 prompt_instance = None
 agent_instance = None
 agent_executor_instance = None
-memory_instance = ConversationBufferWindowMemory(k=5, memory_key="chat_history", return_messages=True)
+
+# This dictionary will store message histories for different sessions
+store = {}
+
+def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = BaseChatMessageHistory()
+    return store[session_id]
 
 
 def get_current_time_in_panama():
@@ -160,7 +169,6 @@ def _initialize_agent_components():
             agent_executor_instance = AgentExecutor(
                 agent=agent_instance, 
                 tools=available_tools, 
-                memory=memory_instance, # memory_instance se inicializa globalmente
                 verbose=True, 
                 handle_parsing_errors=True, 
                 max_iterations=7, 
@@ -175,21 +183,28 @@ def _initialize_agent_components():
 # Intento de inicialización temprana al cargar el módulo (puede o no funcionar en todos los contextos de Flask)
 # _initialize_agent_components() # Comentado para forzar la inicialización solo a través de ask_marta
 
-def ask_marta(user_input: str) -> str:
+def ask_marta(user_input: str, session_id: str = "default_session") -> str:
     """
     Envía una pregunta o instrucción a Marta y retorna su respuesta.
     """
-    current_executor = _initialize_agent_components() # Asegura que esté inicializado
+    agent_executor = _initialize_agent_components() # Asegura que esté inicializado
 
-    print(f"--- DEBUG (ask_marta): Inicio. Estado de current_executor: {current_executor!r} ---")
-    if not current_executor:
-        print(f"--- DEBUG (ask_marta): current_executor es None. No se puede proceder. ---")
+    if not agent_executor:
         return "Lo siento, no estoy operativa en este momento debido a un error de configuración con el agente o el LLM."
-    
-    print(f"--- DEBUG (ask_marta): va a llamar a current_executor.invoke() ---")
+
+    # Create a new runnable with message history
+    runnable_with_history = RunnableWithMessageHistory(
+        agent_executor,
+        get_session_history,
+        input_messages_key="input",
+        history_messages_key="chat_history",
+    )
+
     try:
-        response_dict = current_executor.invoke({"input": user_input})
-        print(f"--- DEBUG (ask_marta): Respuesta de current_executor.invoke(): {response_dict} ---")
+        response_dict = runnable_with_history.invoke(
+            {"input": user_input},
+            config={"configurable": {"session_id": session_id}},
+        )
         return response_dict.get('output', "No pude generar una respuesta clara.")
     except Exception as e:
         print(f"Error durante la ejecución del agente en ask_marta: {e}")

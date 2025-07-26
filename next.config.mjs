@@ -7,9 +7,11 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // experimental: {
-  //   outputFileTracingRoot: path.join(__dirname, '../../'),
-  // },
+  experimental: {
+    middleware: {
+      runtime: 'nodejs',
+    },
+  },
   distDir: '.next',
   typescript: {
     ignoreBuildErrors: true,
@@ -23,7 +25,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
         port: '',
-        pathname: '/**',
+        pathname: '/**', 
       },
     ],
   },

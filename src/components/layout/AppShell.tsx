@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Mail, FileText, Settings, BotMessageSquare, MessageSquare, UserCircle } from 'lucide-react';
+import { Mail, FileText, Settings, BotMessageSquare, MessageSquare, UserCircle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   SidebarProvider,
@@ -35,6 +35,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 const navItems = [
   { href: '/inbox', label: 'Inbox', icon: Mail },
   { href: '/chat', label: 'Chat', icon: MessageSquare },
+  { href: '/crm', label: 'CRM', icon: Users },
   { href: '/files', label: 'Files', icon: FileText },
   { href: '/ask-marta', label: 'Ask Marta', icon: BotMessageSquare },
   // { href: '/settings', label: 'Settings', icon: Settings }, // Future placeholder

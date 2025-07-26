@@ -1,0 +1,33 @@
+application:
+  name: "marta-ai-app"
+  pods:
+    - name: nextjs
+      image: "your-docker-hub-username/marta-frontend:latest"
+      path: "/"
+      servicePorts:
+        - 80
+
+    - name: postgres
+      image: "postgres:13-alpine"
+      servicePorts:
+        - 5432
+      vars:
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "wT8#pL2v!sQ9@dX4"
+        POSTGRES_DB: "store"
+        PGDATA: "/var/lib/postgresql/data/pgdata"
+      volumes:
+        - name: "postgres-data"
+          size: "1Gi"
+          mountPath: "/var/lib/postgresql/data"
+
+    - name: python-backend
+      image: "your-docker-hub-username/marta-backend:latest"
+      servicePorts:
+        - 5000
+      vars:
+        POSTGRES_DB: "store"
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "wT8#pL2v!sQ9@dX4"
+        POSTGRES_HOST: "postgres" # The service name of the postgres pod
+

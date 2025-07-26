@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datanalisis.io - Pitch Deck Interactivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide-react@0.368.0/dist/lucide.js" defer></script>
+    <style>
+        :root {
+            --bg-dark: #0D1B2A;
+            --bg-dark-accent: #1B263B;
+            --text-light: #E0E0E0;
+            --text-dark: #1B263B;
+            --primary-accent: #FFC300;
+            --primary-accent-dark: #e6b000;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        .slide {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        @media (min-width: 768px) {
+            .slide {
+                padding: 2rem 4rem;
+            }
+        }
+        .slide-content {
+            max-width: 1100px;
+            margin: auto;
+            z-index: 10;
+            width: 100%;
+        }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .arrow-down {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+        /* Estilos para el Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            max-width: 85vw;
+            max-height: 85vh;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 25px;
+            right: 45px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .gallery-image {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .gallery-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            html, body { height: auto !important; background: #fff !important; color: #000 !important; }
+            .scroll-container { height: auto !important; overflow: visible !important; }
+            .slide { page-break-after: always; height: 100vh !important; }
+            .arrow-down, .lightbox { display: none !important; }
+            .fade-in-up.visible, .fade-in-up { opacity: 1 !important; transform: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scroll-container">
+
+        <!-- Diapositiva 1: Portada (The Hook) -->
+        <section id="slide-1" class="slide" style="background-color: #2c3e50;">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)] [background-size:20px_20px]"></div>
+            <div class="slide-content">
+                <img src="logo.png" alt="Logo de Datanalisis.io" class="h-12 mx-auto mb-8 fade-in-up" />
+                <h1 class="text-5xl md:text-7xl font-black text-white fade-in-up" style="transition-delay: 200ms;">Sus datos son su activo más valioso.</h1>
+                <p class="text-xl md:text-2xl font-light mt-4 text-gray-300 fade-in-up" style="transition-delay: 400ms;">¿Los está tratando como tal?</p>
+            </div>
+            <div class="arrow-down text-white">
+                <i data-lucide="arrow-down"></i>
+            </div>
+        </section>
+
+        <!-- Diapositiva 2: El Problema (The Problem) -->
+        <section id="slide-2" class="slide">
+            <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1587560699334-cc426240a149?q=80&w=2070&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80 z-0"></div>
+            <div class="slide-content text-white">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 fade-in-up">La Promesa del Software de Productividad</h2>
+                <p class="text-xl md:text-2xl mb-6 max-w-4xl mx-auto fade-in-up" style="transition-delay: 200ms;">Las empresas invierten en sistemas para ser más productivas, pero la realidad es dura: el <strong class="text-[#FFC300]">80% de estas implementaciones fracasan</strong> en generar el valor esperado.</p>
+                <p class="text-lg md:text-xl font-semibold bg-[#FFC300] text-black py-3 px-6 rounded-lg inline-block fade-in-up" style="transition-delay: 400ms;">El software 'de talla única' rara vez se ajusta a las necesidades únicas de su negocio.</p>
+            </div>
+        </section>
+
+        <!-- Diapositiva 3: Presentando la Solución -->
+        <section id="slide-4" class="slide" style="background-color: var(--bg-dark);">
+             <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4 fade-in-up">La Revolución del Software a Medida con IA</h2>
+                <p class="text-lg text-gray-300 mb-12 max-w-3xl mx-auto fade-in-up" style="transition-delay: 200ms;">Creamos herramientas potentes y 100% personalizadas, eliminando las barreras tradicionales de inversión, tiempo y complejidad.</p>
+                <div class="grid md:grid-cols-3 gap-8 text-center mt-12">
+                    <!-- Beneficio 1: Sin Altas Inversiones -->
+                    <div class="fade-in-up" style="transition-delay: 200ms;">
+                        <div class="bg-[var(--bg-dark-accent)] p-1.5 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4 border-2 border-[var(--primary-accent)]"><img src="AltaInversion.png" alt="Sin Altas Inversiones" class="w-full h-full rounded-full object-cover"></div>
+                        <h3 class="font-bold text-xl mb-2">Sin Altas Inversiones</h3>
+                        <p class="text-gray-400">Acceda a software de nivel empresarial con un modelo flexible que se adapta a su presupuesto.</p>
+                    </div>
+                    <!-- Beneficio 2: Hecho a su Medida -->
+                    <div class="fade-in-up" style="transition-delay: 400ms;">
+                        <div class="bg-[var(--bg-dark-accent)] p-1.5 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4 border-2 border-[var(--primary-accent)]"><img src="goodfit.png" alt="100% a su Medida" class="w-full h-full rounded-full object-cover"></div>
+                        <h3 class="font-bold text-xl mb-2">100% a su Medida</h3>
+                        <p class="text-gray-400">Creamos la herramienta que su empresa necesita, integrándola perfectamente a sus sistemas existentes.</p>
+                    </div>
+                    <!-- Beneficio 3: Sin Equipos Grandes -->
+                    <div class="fade-in-up" style="transition-delay: 600ms;">
+                        <div class="bg-[var(--bg-dark-accent)] p-1.5 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4 border-2 border-[var(--primary-accent)]"><img src="equipos.png" alt="Sin Equipos Internos" class="w-full h-full rounded-full object-cover"></div>
+                        <h3 class="font-bold text-xl mb-2">Sin Equipos Internos</h3>
+                        <p class="text-gray-400">Nos convertimos en su equipo de desarrollo, liberando a su personal para que se enfoque en el negocio.</p>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        <!-- Diapositiva 4: La Plataforma en Acción -->
+        <section id="slide-app" class="slide" style="background-color: var(--bg-dark-accent);">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold fade-in-up mb-10">Un Ecosistema de Inteligencia de Negocios</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-left mb-10">
+                    <div class="bg-[var(--bg-dark)] p-5 rounded-lg border border-gray-700 fade-in-up" style="transition-delay: 200ms;">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--primary-accent)]">Control Financiero</h3>
+                        <p class="text-gray-300 text-sm">Visualice flujo de caja, costos y proyecciones desde un solo lugar para una visibilidad total.</p>
+                    </div>
+                    <div class="bg-[var(--bg-dark)] p-5 rounded-lg border border-gray-700 fade-in-up" style="transition-delay: 400ms;">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--primary-accent)]">Análisis de Ventas</h3>
+                        <p class="text-gray-300 text-sm">Descubra sus productos estrella, entienda a sus mejores clientes y optimice su estrategia comercial.</p>
+                    </div>
+                    <div class="bg-[var(--bg-dark)] p-5 rounded-lg border border-gray-700 fade-in-up" style="transition-delay: 600ms;">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--primary-accent)]">Optimización de Inventario</h3>
+                        <p class="text-gray-300 text-sm">Anticipe la demanda, evite quiebres de stock y reduzca costos de almacenamiento con IA.</p>
+                    </div>
+                     <div class="bg-[var(--bg-dark)] p-5 rounded-lg border border-gray-700 fade-in-up" style="transition-delay: 800ms;">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--primary-accent)]">Asistente IA</h3>
+                        <p class="text-gray-300 text-sm">Haga preguntas en lenguaje natural y obtenga respuestas al instante sobre el estado de su negocio.</p>
+                    </div>
+                </div>
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <img src="https://placehold.co/600x400/1B263B/FFFFFF?text=Flujo+de+Caja" alt="Screenshot del Flujo de Caja Consolidado" class="gallery-image rounded-lg shadow-lg w-full h-auto object-cover fade-in-up" style="transition-delay: 1000ms;">
+                    <img src="https://placehold.co/600x400/1B263B/FFFFFF?text=BI+Gastos" alt="Screenshot del Dashboard de Gastos Operativos" class="gallery-image rounded-lg shadow-lg w-full h-auto object-cover fade-in-up" style="transition-delay: 1200ms;">
+                    <img src="https://placehold.co/600x400/1B263B/FFFFFF?text=Análisis+de+Ventas" alt="Screenshot del Análisis de Gastos" class="gallery-image rounded-lg shadow-lg w-full h-auto object-cover fade-in-up" style="transition-delay: 1400ms;">
+                    <img src="https://placehold.co/600x400/1B263B/FFFFFF?text=KPIs+Inventario" alt="Screenshot de Líneas de Crédito" class="gallery-image rounded-lg shadow-lg w-full h-auto object-cover fade-in-up" style="transition-delay: 1600ms;">
+                </div>
+            </div>
+        </section>
+        
+        <!-- Diapositiva 5: El Experto -->
+        <section id="slide-7" class="slide" style="background-color: var(--bg-dark);">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 fade-in-up">El Experto Detrás de la Estrategia</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-10">
+                    <div class="text-center fade-in-up" style="transition-delay: 200ms;">
+                        <img class="w-40 h-40 rounded-full mx-auto mb-4 border-4 border-[var(--primary-accent)] object-cover" src="profilepic3.jpg" alt="Foto de Arturo de la Guardia">
+                    </div>
+                    <div class="max-w-xl text-center md:text-left fade-in-up" style="transition-delay: 400ms;">
+                        <h3 class="font-bold text-2xl text-white">Arturo de la Guardia</h3>
+                        <p class="text-[var(--primary-accent)] text-lg">Georgetown MBA & INCAE Data Expert</p>
+                        <p class="text-gray-300 mt-4">Con más de 10 años de experiencia en administración de negocios y una especialización en IA por INCAE y Georgetown, mi misión es traducir la complejidad de los datos en crecimiento y rentabilidad para empresas como la suya.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Diapositiva 6: Llamada a la Acción -->
+        <section id="slide-9" class="slide bg-[var(--primary-accent)] text-[var(--text-dark)]">
+            <div class="slide-content">
+                <h2 class="text-5xl md:text-6xl font-black mb-4 fade-in-up">¿Listo para tomar el control?</h2>
+                <p class="text-xl md:text-2xl text-[var(--text-dark)] opacity-90 mb-8 max-w-3xl mx-auto fade-in-up" style="transition-delay: 200ms;">Agende una demostración gratuita y descubra las oportunidades ocultas en sus propios datos.</p>
+                <a href="https://datanalisis.io/contacto.html" target="_blank" rel="noopener noreferrer" class="fade-in-up" style="transition-delay: 400ms;">
+                    <button id="cta-button" class="bg-white text-[var(--bg-dark)] font-bold py-4 px-10 rounded-lg text-xl shadow-xl hover:bg-gray-200 transition-all transform hover:scale-105">Solicitar una Demo Gratuita</button>
+                </a>
+            </div>
+        </section>
+        
+    </div>
+
+    <!-- El Lightbox -->
+    <div id="myLightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightboxImg">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Función para inicializar los íconos, reintentando hasta que 'lucide' esté disponible.
+            const initLucideIcons = () => {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                } else {
+                    // Si el script de lucide aún no se ha cargado/analizado, espera y vuelve a intentarlo.
+                    setTimeout(initLucideIcons, 100);
+                }
+            };
+            
+            initLucideIcons();
+
+            // Animaciones de scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.querySelectorAll('.fade-in-up').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    } else {
+                         entry.target.querySelectorAll('.fade-in-up').forEach(el => {
+                            // Opcional: remover la clase para que la animación se repita si el usuario vuelve a scrollear
+                            // el.classList.remove('visible'); 
+                        });
+                    }
+                });
+            }, { threshold: 0.4 }); // El 40% del elemento debe estar visible
+
+            document.querySelectorAll('.slide').forEach(section => {
+                observer.observe(section);
+            });
+
+            // Funcionalidad del Lightbox
+            const lightbox = document.getElementById('myLightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const galleryImages = document.querySelectorAll('.gallery-image');
+            const closeBtn = document.querySelector('.lightbox-close');
+
+            galleryImages.forEach(image => {
+                image.addEventListener('click', () => {
+                    lightbox.style.display = 'flex';
+                    lightboxImg.src = image.src;
+                });
+            });
+
+            const closeLightbox = () => {
+                if(lightbox) lightbox.style.display = 'none';
+            }
+
+            if(closeBtn) {
+                closeBtn.addEventListener('click', closeLightbox);
+            }
+
+            if(lightbox) {
+                lightbox.addEventListener('click', (e) => {
+                    // Cierra si se hace clic fuera de la imagen
+                    if (e.target === lightbox) {
+                        closeLightbox();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

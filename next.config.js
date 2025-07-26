@@ -4,9 +4,6 @@ const nextConfig = {
   // Enable React Strict Mode
   reactStrictMode: true,
   // Enable server actions (if using Next.js 13+)
-  experimental: {
-    serverActions: true,
-  },
   // Configure images if needed
   images: {
     domains: ['lh3.googleusercontent.com'], // Add other domains as needed
