@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { phone, name, email, company, notes, messageText } = body;
+    const { phone, name, email, company, notes, messageText, last_contact_source, ai_insights } = body;
 
     if (!phone || !name) {
       return NextResponse.json(
@@ -68,6 +68,8 @@ export async function POST(request: NextRequest) {
         email: email || client.email,
         company: company || client.company,
         notes: updatedNotes,
+        last_contact_source: last_contact_source || client.last_contact_source,
+        ai_insights: ai_insights || client.ai_insights,
       });
 
       CRMService.updateLastContact(client.id);
@@ -88,6 +90,8 @@ export async function POST(request: NextRequest) {
         phone,
         company: company || '',
         notes: initialNotes,
+        last_contact_source: last_contact_source,
+        ai_insights: ai_insights,
       });
 
       return NextResponse.json({
@@ -116,7 +120,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { phone, messageText } = body;
+    const { phone, messageText, last_contact_source, ai_insights } = body;
 
     if (!phone) {
       return NextResponse.json(
@@ -145,7 +149,11 @@ export async function PUT(request: NextRequest) {
         ? `${client.notes}\n\n${newNote}`
         : newNote;
 
-      CRMService.updateClient(client.id, { notes: updatedNotes });
+      CRMService.updateClient(client.id, { 
+        notes: updatedNotes,
+        last_contact_source: last_contact_source || client.last_contact_source,
+        ai_insights: ai_insights || client.ai_insights,
+      });
     }
 
     return NextResponse.json({

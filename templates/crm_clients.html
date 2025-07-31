@@ -1,0 +1,26 @@
+
+{% extends "crm_base.html" %}
+{% block title %}CRM Clients - Marta AI{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-semibold text-sky-700 mb-6">CRM Clients</h1>
+    {% if clients %}
+        <ul class="space-y-4">
+            {% for client in clients %}
+            <li class="border border-slate-300 p-4 rounded-md hover:shadow-md transition-shadow duration-200">
+                <a href="{{ url_for('client_profile', email=client.email) }}" class="block">
+                    <div class="flex justify-between items-center mb-1">
+                        <h2 class="text-lg font-medium text-sky-600">{{ client.name }}</h2>
+                        <span class="text-xs text-slate-500">{{ client.email }}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-2"><strong>Phone:</strong> {{ client.phone_number }}</p>
+                    <p class="text-sm text-slate-500"><strong>Last Contact:</strong> {{ client.last_contact if client.last_contact else 'N/A' }}</p>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-slate-600">No clients found.</p>
+    {% endif %}
+</div>
+{% endblock %}

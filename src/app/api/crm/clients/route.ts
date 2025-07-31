@@ -26,17 +26,19 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, company, notes }: CreateClientInput = body;
+    const { first_name, last_name, position, email, phone, company, notes }: CreateClientInput = body;
     
-    if (!name || !email || !phone) {
+    if (!first_name || !last_name || !email || !phone) {
       return NextResponse.json(
-        { error: 'Name, email, and phone are required' },
+        { error: 'First name, last name, email, and phone are required' },
         { status: 400 }
       );
     }
     
     const client = CRMService.createClient({
-      name,
+      first_name,
+      last_name,
+      position,
       email,
       phone,
       company,

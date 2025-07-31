@@ -20,16 +20,20 @@ interface ClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   client?: Client | null;
-  onClientSaved: () => void;
+  onClientSaved: (client: Client | null) => void;
 }
 
 export function ClientDialog({ open, onOpenChange, client, onClientSaved }: ClientDialogProps) {
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     email: '',
     phone: '',
     company: '',
     notes: '',
+    last_contact_source: '',
+    ai_insights: {},
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -37,19 +41,27 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
   useEffect(() => {
     if (client) {
       setFormData({
-        name: client.name,
+        first_name: client.first_name,
+        last_name: client.last_name,
+        position: client.position || '',
         email: client.email,
         phone: client.phone,
         company: client.company || '',
         notes: client.notes,
+        last_contact_source: client.last_contact_source || '',
+        ai_insights: client.ai_insights || {},
       });
     } else {
       setFormData({
-        name: '',
+        first_name: '',
+        last_name: '',
+        position: '',
         email: '',
         phone: '',
         company: '',
         notes: '',
+        last_contact_source: '',
+        ai_insights: {},
       });
     }
     setError('');
@@ -75,7 +87,7 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
       const data = await response.json();
 
       if (response.ok) {
-        onClientSaved();
+        onClientSaved(data.client);
       } else {
         setError(data.error || 'Failed to save client');
       }
@@ -96,7 +108,7 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
       });
 
       if (response.ok) {
-        onClientSaved();
+        onClientSaved(null);
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to delete client');
@@ -118,7 +130,8 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
       });
 
       if (response.ok) {
-        onClientSaved();
+        const updatedClient = await response.json();
+        onClientSaved(updatedClient.client);
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to update last contact');
@@ -145,12 +158,32 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="first_name">First Name *</Label>
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="last_name">Last Name *</Label>
+              <Input
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="position">Position</Label>
+              <Input
+                id="position"
+                value={formData.position}
+                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -196,6 +229,25 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
           </div>
 
           {client && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Additional Information</h3>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p><strong>Last Contact Source:</strong> {client.last_contact_source || 'N/A'}</p>
+              </div>
+              <div>
+                <h4 className="font-medium">AI Insights</h4>
+                {client.ai_insights ? (
+                  <pre className="text-xs bg-slate-100 p-2 rounded-md mt-1">
+                    {JSON.stringify(client.ai_insights, null, 2)}
+                  </pre>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No AI insights available.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {client && (
             <div className="text-sm text-muted-foreground space-y-1">
               <p>Created: {new Date(client.createdAt).toLocaleString()}</p>
               <p>Last Contact: {new Date(client.lastContact).toLocaleString()}</p>
@@ -233,7 +285,7 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Client</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete {client.name}? This action cannot be undone.
+                          Are you sure you want to delete {client.first_name} {client.last_name}? This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

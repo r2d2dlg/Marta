@@ -8,11 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Phone, Mail, Building, Calendar, User } from 'lucide-react';
 import { ClientDialog } from '@/components/crm/client-dialog';
+import { SalesFunnel } from '@/components/crm/sales-funnel';
 
 export default function CRMPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('clients');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
@@ -50,8 +52,19 @@ export default function CRMPage() {
     }
   };
 
-  const handleClientSaved = () => {
-    fetchClients(searchQuery);
+  const handleClientSaved = (client: Client | null) => {
+    if (client) {
+      if (selectedClient) {
+        // Update existing client
+        setClients(clients.map(c => c.id === client.id ? client : c));
+      } else {
+        // Add new client
+        setClients([client, ...clients]);
+      }
+    } else {
+      // Client was deleted
+      setClients(clients.filter(c => c.id !== selectedClient?.id));
+    }
     setIsDialogOpen(false);
     setSelectedClient(null);
   };
@@ -80,19 +93,26 @@ export default function CRMPage() {
       </div>
 
       <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search clients..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-8"
-          />
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search clients..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Badge variant="secondary">
+            {clients.length} client{clients.length !== 1 ? 's' : ''}
+          </Badge>
         </div>
-        <Badge variant="secondary">
-          {clients.length} client{clients.length !== 1 ? 's' : ''}
-        </Badge>
-      </div>
+
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <a href="#" onClick={() => setActiveTab('clients')} className={`${activeTab === 'clients' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Clients </a>
+            <a href="#" onClick={() => setActiveTab('sales_funnel')} className={`${activeTab === 'sales_funnel' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Sales Funnel </a>
+          </nav>
+        </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
@@ -115,46 +135,52 @@ export default function CRMPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {clients.map((client) => (
-            <Card 
-              key={client.id} 
-              className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => {
-                setSelectedClient(client);
-                setIsDialogOpen(true);
-              }}
-            >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{client.name}</CardTitle>
-                {client.company && (
-                  <CardDescription className="flex items-center">
-                    <Building className="w-3 h-3 mr-1" />
-                    {client.company}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Mail className="w-3 h-3 mr-2" />
-                  {client.email}
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Phone className="w-3 h-3 mr-2" />
-                  {client.phone}
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="w-3 h-3 mr-2" />
-                  Last contact: {formatDate(client.lastContact)}
-                </div>
-                {client.notes && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-                    {client.notes}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+        <div>
+          {activeTab === 'clients' && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {clients.map((client) => (
+                <Card 
+                  key={client.id} 
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => {
+                    setSelectedClient(client);
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">{client.first_name} {client.last_name}</CardTitle>
+                    {client.company && (
+                      <CardDescription className="flex items-center">
+                        <Building className="w-3 h-3 mr-1" />
+                        {client.company}
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Mail className="w-3 h-3 mr-2" />
+                      {client.email}
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Phone className="w-3 h-3 mr-2" />
+                      {client.phone}
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="w-3 h-3 mr-2" />
+                      Last contact: {formatDate(client.lastContact)}
+                    </div>
+                    {client.notes && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                        {client.notes}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'sales_funnel' && <SalesFunnel />}
         </div>
       )}
 

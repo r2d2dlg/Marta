@@ -212,6 +212,14 @@ def api_datanalisis_info():
     try: respuesta = buscar_informacion_datanalisis(pregunta); return jsonify({"respuesta": respuesta})
     except Exception as e: return jsonify({"error": f"Error al buscar información: {str(e)}"}), 500
 
+@app.route('/client/<phone_number>')
+def view_client(phone_number):
+    client = CRMService.getClientByPhone(phone_number)
+    if not client:
+        flash(f"No se encontró el cliente con el teléfono {phone_number}", "warning")
+        return redirect(url_for('index'))
+    return render_template('client_profile.html', client=client)
+
 if __name__ == '__main__':
     if not os.path.exists('templates'): os.makedirs('templates')
     

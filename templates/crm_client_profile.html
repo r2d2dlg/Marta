@@ -1,0 +1,40 @@
+
+{% extends "crm_base.html" %}
+{% block title %}Client Profile - {{ client.name if client else 'Not Found' }}{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    {% if client %}
+        <h1 class="text-3xl font-semibold text-sky-700 mb-6">{{ client.name }}</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-xl font-medium text-sky-600 mb-4">Contact Information</h2>
+                <p><strong>Email:</strong> {{ client.email }}</p>
+                <p><strong>Phone:</strong> {{ client.phone_number }}</p>
+                <p><strong>Company:</strong> {{ client.company if client.company else 'N/A' }}</p>
+            </div>
+            <div>
+                <h2 class="text-xl font-medium text-sky-600 mb-4">Activity</h2>
+                <p><strong>Last Contact:</strong> {{ client.last_contact if client.last_contact else 'N/A' }}</p>
+                <p><strong>Source:</strong> {{ client.last_contact_source if client.last_contact_source else 'N/A' }}</p>
+            </div>
+        </div>
+        <div class="mt-6">
+            <h2 class="text-xl font-medium text-sky-600 mb-4">AI Insights</h2>
+            {% if client.ai_insights %}
+                <pre class="bg-slate-100 p-4 rounded-md">{{ client.ai_insights | tojson(indent=2) }}</pre>
+            {% else %}
+                <p>No AI insights available.</p>
+            {% endif %}
+        </div>
+        <div class="mt-6">
+            <h2 class="text-xl font-medium text-sky-600 mb-4">Notes</h2>
+            <div class="bg-slate-50 p-4 rounded-md border border-slate-200 whitespace-pre-wrap">{{ client.notes if client.notes else 'No notes available.' }}</div>
+        </div>
+    {% else %}
+        <p class="text-slate-600">Client not found.</p>
+    {% endif %}
+    <div class="mt-6">
+        <a href="{{ url_for('client_list') }}" class="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors">Back to Client List</a>
+    </div>
+</div>
+{% endblock %}
