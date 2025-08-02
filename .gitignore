@@ -1,37 +1,4 @@
-<<<<<<< HEAD
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-env/
-ENV/
-.env
-
-# IDE
-=======
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -41,17 +8,17 @@ ENV/
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# misc
+# Misc
 .DS_Store
 *.pem
 *.p12
@@ -74,16 +41,16 @@ ENV/
 *.sst.enc.iv
 *.sst.enc.tag
 
-# debug
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# vercel
+# Vercel
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
@@ -127,30 +94,11 @@ gradle-*/
 *.sqlite
 
 # IDE specific files
->>>>>>> cb949a4e8da809f03de9a436c670f51e1fc65e2b
 .idea/
 .vscode/
 *.swp
 *.swo
 
-<<<<<<< HEAD
-# Logs
-*.log
-
-# Local development settings
-instance/
-.webassets-cache
-
-# Google API credentials
-client_secrets.json
-credentials.json
-token.json
-token.pickle
-
-# Other
-.DS_Store
-Thumbs.db 
-=======
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -159,4 +107,37 @@ Thumbs.db
 .Trashes
 ehthumbs.db
 Thumbs.db
->>>>>>> cb949a4e8da809f03de9a436c670f51e1fc65e2b
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# Other
+.tmp.driveupload/
+.claude/
+.idx/

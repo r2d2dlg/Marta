@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 9002",
-    "genkit:dev": "node_modules/.bin/genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "node_modules/.bin/genkit start -- tsx --watch src/ai/dev.ts",
+    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
+    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start -p $PORT",
     "lint": "next lint",
@@ -85,5 +85,21 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a NextJS starter in Firebase Studio.",
+  "main": "export-pdf.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r2d2dlg/Marta.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/r2d2dlg/Marta/issues"
+  },
+  "homepage": "https://github.com/r2d2dlg/Marta#readme"
 }
