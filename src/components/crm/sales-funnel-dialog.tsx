@@ -9,17 +9,19 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+import { Client } from '@/types/crm';
+
 interface SalesFunnelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onFunnelEntrySaved: () => void;
-  clients: { id: number; company: string }[];
-  entry?: any;
+  clients: Client[];
+  entry?: any; // Entry can be a client or a funnel entry
 }
 
 export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clients, entry }: SalesFunnelDialogProps) {
   const [formData, setFormData] = useState({
-    client_id: 0,
+    company: '',
     stage: 'Lead',
     status: '',
     notes: '',
@@ -31,13 +33,36 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
 
   useEffect(() => {
     if (entry) {
+      if (entry.type === 'client_only') {
+        // Pre-fill with client data when creating a new funnel entry from a client
+        setFormData({
+          company: entry.company,
+          stage: 'Lead',
+          status: 'New Lead',
+          notes: entry.client_data?.notes || '',
+          estimated_value: 0,
+          close_date: '',
+        });
+      } else {
+        // Pre-fill with existing funnel entry data
+        setFormData({
+          company: entry.company,
+          stage: entry.stage,
+          status: entry.status,
+          notes: entry.notes,
+          estimated_value: entry.estimated_value,
+          close_date: entry.close_date ? new Date(entry.close_date).toISOString().split('T')[0] : '',
+        });
+      }
+    } else {
+      // Reset form when adding a new entry from scratch
       setFormData({
-        client_id: entry.client_id,
-        stage: entry.stage,
-        status: entry.status,
-        notes: entry.notes,
-        estimated_value: entry.estimated_value,
-        close_date: entry.close_date,
+        company: '',
+        stage: 'Lead',
+        status: '',
+        notes: '',
+        estimated_value: 0,
+        close_date: '',
       });
     }
   }, [entry]);
@@ -48,15 +73,24 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
     setError('');
 
     try {
-      const method = entry ? 'PUT' : 'POST';
-      const url = entry ? `/api/crm/sales-funnel?id=${entry.id}` : '/api/crm/sales-funnel';
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
+      let response;
+      
+      if (entry && entry.type !== 'client_only') {
+        // Update existing funnel entry
+        response = await fetch(`${API_BASE_URL}/sales_funnel/${entry.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+      } else {
+        // Create new funnel entry
+        response = await fetch(`${API_BASE_URL}/sales_funnel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+      }
 
       const data = await response.json();
 
@@ -85,13 +119,20 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="client_id">Company *</Label>
-            <Select onValueChange={(value) => setFormData({ ...formData, client_id: parseInt(value) })}>
+            <Select 
+              onValueChange={(value) => {
+                const selectedClient = clients.find(client => client.email === value);
+                setFormData({ ...formData, company: selectedClient?.company || '' });
+              }}
+              defaultValue={formData.company ? clients.find(c => c.company === formData.company)?.email : undefined}
+              disabled={entry && entry.type === 'client_only'}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                {clients.filter(client => client.id && client.company).map((client) => (
-                  <SelectItem key={client.id} value={client.id ? client.id.toString() : ''}>
+                {clients.filter(client => client.company).map((client) => (
+                  <SelectItem key={client.email} value={client.email}>
                     {client.company}
                   </SelectItem>
                 ))}
@@ -175,7 +216,7 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Create'}
+              {loading ? 'Saving...' : (entry ? 'Save' : 'Create')}
             </Button>
           </div>
         </form>

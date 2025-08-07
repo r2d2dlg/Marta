@@ -38,7 +38,7 @@ class CRM:
             cur.execute("""
             CREATE TABLE IF NOT EXISTS sales_funnel (
                 id SERIAL PRIMARY KEY,
-                client_id INTEGER UNIQUE NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+                client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
                 stage VARCHAR(255) NOT NULL CHECK (stage IN ('Lead', 'Contacted', 'Proposal', 'Negotiation', 'Won', 'Lost')),
                 status VARCHAR(255) NOT NULL,
                 notes TEXT,
@@ -47,6 +47,11 @@ class CRM:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            """)
+            
+            # Remove the unique constraint if it exists
+            cur.execute("""
+            ALTER TABLE sales_funnel DROP CONSTRAINT IF EXISTS sales_funnel_client_id_key;
             """)
             self.conn.commit()
 
@@ -137,12 +142,22 @@ class CRM:
 
     def add_sales_funnel_entry(self, data):
         with self.conn.cursor() as cur:
+            # If company is provided instead of client_id, find the client_id
+            if 'company' in data and 'client_id' not in data:
+                cur.execute("SELECT id FROM clients WHERE company = %s LIMIT 1", (data['company'],))
+                client_result = cur.fetchone()
+                if not client_result:
+                    raise ValueError(f"No client found with company: {data['company']}")
+                client_id = client_result[0]
+            else:
+                client_id = data['client_id']
+            
             cur.execute(
                 """
                 INSERT INTO sales_funnel (client_id, stage, status, notes, estimated_value, close_date)
                 VALUES (%s, %s, %s, %s, %s, %s);
                 """,
-                (data['client_id'], data['stage'], data['status'], data['notes'], data['estimated_value'], data['close_date'])
+                (client_id, data['stage'], data['status'], data['notes'], data.get('estimated_value'), data.get('close_date'))
             )
             self.conn.commit()
 

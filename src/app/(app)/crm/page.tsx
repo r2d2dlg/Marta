@@ -114,7 +114,7 @@ export default function CRMPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">Loading clients...</div>
         </div>
-      ) : clients.length === 0 ? (
+      ) : activeTab === 'clients' && clients.length === 0 ? (
         <Card key="no-clients-card">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <User className="w-12 h-12 text-muted-foreground mb-4" />
@@ -134,9 +134,9 @@ export default function CRMPage() {
         <div>
           {activeTab === 'clients' && (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {clients.map((client) => (
+              {clients.map((client, index) => (
                 <Card 
-                  key={client.id} 
+                  key={client.id || `client-${client.email}-${index}`} 
                   className="cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => {
                     setSelectedClient(client);
@@ -176,7 +176,7 @@ export default function CRMPage() {
             </div>
           )}
 
-          {activeTab === 'sales_funnel' && <SalesFunnel />}
+          {activeTab === 'sales_funnel' && <SalesFunnel clients={clients} />}
         </div>
       )}
 

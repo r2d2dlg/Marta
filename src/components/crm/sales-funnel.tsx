@@ -5,28 +5,20 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { SalesFunnelDialog } from './sales-funnel-dialog';
 import { CRMService } from '@/lib/crm';
+import { Client } from '@/types/crm';
 
-const FUNNEL_STAGES = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Won', 'Lost'];
+const FUNNEL_STAGES = ['Lead', 'Contacted', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 
-export function SalesFunnel() {
+interface SalesFunnelProps {
+  clients: Client[];
+}
+
+export function SalesFunnel({ clients }: SalesFunnelProps) {
   const [funnelData, setFunnelData] = useState<any[]>([]);
-  const [allCompanies, setAllCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Lead');
   const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
-
-  const [clients, setClients] = useState<{ id: number; company: string }[]>([]);
-
-  const fetchClients = async () => {
-    try {
-      const data = await CRMService.getAllClients();
-      setClients(data.map(c => ({ id: c.id, company: c.company || '' })));
-      setAllCompanies(data);
-    } catch (error) {
-      console.error('Error fetching clients:', error);
-    }
-  };
 
   const fetchFunnelData = async () => {
     setLoading(true);
@@ -75,7 +67,7 @@ export function SalesFunnel() {
     });
 
     // Add companies without funnel entries to Lead stage
-    allCompanies.forEach((client: any) => {
+    clients.forEach((client: any) => {
       if (client.company && !companiesWithFunnelEntries.has(client.company)) {
         organized['Lead'].push({
           id: client.id, // Use client ID as the key
@@ -97,7 +89,7 @@ export function SalesFunnel() {
       case 'Lost': return 'bg-red-100 text-red-800 border-red-200';
       case 'Proposal': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Negotiation': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Qualified': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Contacted': return 'bg-purple-100 text-purple-800 border-purple-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -108,14 +100,13 @@ export function SalesFunnel() {
       case 'Lost': return 'border-red-500 text-red-600';
       case 'Proposal': return 'border-blue-500 text-blue-600';
       case 'Negotiation': return 'border-yellow-500 text-yellow-600';
-      case 'Qualified': return 'border-purple-500 text-purple-600';
+      case 'Contacted': return 'border-purple-500 text-purple-600';
       default: return 'border-gray-500 text-gray-600';
     }
   };
 
   useEffect(() => {
     fetchFunnelData();
-    fetchClients();
   }, []);
 
   if (loading) {
@@ -167,7 +158,7 @@ export function SalesFunnel() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {currentStageData.map((entry: any, index: number) => (
-              <div key={`${entry.id}-${index}`} className={`bg-white border rounded-lg p-4 shadow-sm ${getStageColor(entry.stage)}`}>
+              <div key={entry.id || `${entry.type}-${entry.company}-${index}`} className={`bg-white border rounded-lg p-4 shadow-sm ${getStageColor(entry.stage)}`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-lg">{entry.company}</h3>
                   <Button variant="ghost" size="sm" onClick={() => handleEditEntry(entry)}>
