@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Phone, Mail, Building, Calendar, User } from 'lucide-react';
 import { ClientDialog } from '@/components/crm/client-dialog';
 import { SalesFunnel } from '@/components/crm/sales-funnel';
+import { CRMService } from '@/lib/crm';
 
 export default function CRMPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -20,18 +21,8 @@ export default function CRMPage() {
 
   const fetchClients = async (search?: string) => {
     try {
-      const url = search 
-        ? `/api/crm/clients?search=${encodeURIComponent(search)}`
-        : '/api/crm/clients';
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setClients(data.clients);
-      } else {
-        console.error('Failed to fetch clients:', data.error);
-      }
+      const data = search ? await CRMService.searchClients(search) : await CRMService.getAllClients();
+      setClients(data);
     } catch (error) {
       console.error('Error fetching clients:', error);
     } finally {
@@ -52,18 +43,23 @@ export default function CRMPage() {
     }
   };
 
-  const handleClientSaved = (client: Client | null) => {
+  const handleClientSaved = async (client: Client | null) => {
     if (client) {
       if (selectedClient) {
         // Update existing client
-        setClients(clients.map(c => c.id === client.id ? client : c));
+        const updatedClient = await CRMService.updateClient(client.id, client);
+        setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c));
       } else {
         // Add new client
-        setClients([client, ...clients]);
+        const newClient = await CRMService.createClient(client);
+        setClients([newClient, ...clients]);
       }
     } else {
       // Client was deleted
-      setClients(clients.filter(c => c.id !== selectedClient?.id));
+      if (selectedClient) {
+        await CRMService.deleteClient(selectedClient.id);
+        setClients(clients.filter(c => c.id !== selectedClient.id));
+      }
     }
     setIsDialogOpen(false);
     setSelectedClient(null);
@@ -109,8 +105,8 @@ export default function CRMPage() {
 
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            <a href="#" onClick={() => setActiveTab('clients')} className={`${activeTab === 'clients' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Clients </a>
-            <a href="#" onClick={() => setActiveTab('sales_funnel')} className={`${activeTab === 'sales_funnel' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Sales Funnel </a>
+            <a key="clients-tab" href="#" onClick={() => setActiveTab('clients')} className={`${activeTab === 'clients' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Clients </a>
+            <a key="sales-funnel-tab" href="#" onClick={() => setActiveTab('sales_funnel')} className={`${activeTab === 'sales_funnel' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}> Sales Funnel </a>
           </nav>
         </div>
 
@@ -119,7 +115,7 @@ export default function CRMPage() {
           <div className="text-muted-foreground">Loading clients...</div>
         </div>
       ) : clients.length === 0 ? (
-        <Card>
+        <Card key="no-clients-card">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <User className="w-12 h-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No clients found</h3>

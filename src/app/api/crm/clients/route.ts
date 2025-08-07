@@ -8,11 +8,11 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('search');
     
     if (query) {
-      const clients = CRMService.searchClients(query);
+      const clients = await CRMService.searchClients(query);
       return NextResponse.json({ clients });
     }
     
-    const clients = CRMService.getAllClients();
+    const clients = await CRMService.getAllClients();
     return NextResponse.json({ clients });
   } catch (error) {
     console.error('Error fetching clients:', error);

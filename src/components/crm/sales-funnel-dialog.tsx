@@ -14,9 +14,10 @@ interface SalesFunnelDialogProps {
   onOpenChange: (open: boolean) => void;
   onFunnelEntrySaved: () => void;
   clients: { id: number; company: string }[];
+  entry?: any;
 }
 
-export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clients }: SalesFunnelDialogProps) {
+export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clients, entry }: SalesFunnelDialogProps) {
   const [formData, setFormData] = useState({
     client_id: 0,
     stage: 'Lead',
@@ -28,14 +29,29 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (entry) {
+      setFormData({
+        client_id: entry.client_id,
+        stage: entry.stage,
+        status: entry.status,
+        notes: entry.notes,
+        estimated_value: entry.estimated_value,
+        close_date: entry.close_date,
+      });
+    }
+  }, [entry]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/sales_funnel', {
-        method: 'POST',
+      const method = entry ? 'PUT' : 'POST';
+      const url = entry ? `/api/crm/sales-funnel?id=${entry.id}` : '/api/crm/sales-funnel';
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -74,8 +90,8 @@ export function SalesFunnelDialog({ open, onOpenChange, onFunnelEntrySaved, clie
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id.toString()}>
+                {clients.filter(client => client.id && client.company).map((client) => (
+                  <SelectItem key={client.id} value={client.id ? client.id.toString() : ''}>
                     {client.company}
                   </SelectItem>
                 ))}

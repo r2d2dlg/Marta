@@ -18,7 +18,7 @@ from marta_core.crm import CRM, Client
 from marta_core.agent import ask_marta
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:9002"}})
 
 crm = CRM()
 
@@ -86,10 +86,10 @@ def add_sales_funnel_entry():
     crm.add_sales_funnel_entry(data)
     return jsonify({"message": "Sales funnel entry created"}), 201
 
-@app.route("/sales_funnel/<company_name>", methods=["PUT"])
-def update_sales_funnel_entry(company_name):
+@app.route("/sales_funnel/<int:client_id>", methods=["PUT"])
+def update_sales_funnel_entry(client_id):
     data = request.get_json()
-    crm.update_sales_funnel_entry(company_name, data)
+    crm.update_sales_funnel_entry(client_id, data)
     return jsonify({"message": "Sales funnel entry updated"})
 
 @app.route("/sales_funnel/<company_name>", methods=["DELETE"])
@@ -98,5 +98,4 @@ def delete_sales_funnel_entry(company_name):
     return jsonify({"message": "Sales funnel entry deleted"})
 
 if __name__ == "__main__":
-
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

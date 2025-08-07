@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Trash2, Calendar } from 'lucide-react';
+import { CRMService } from '@/lib/crm';
 
 interface ClientDialogProps {
   open: boolean;
@@ -24,7 +25,7 @@ interface ClientDialogProps {
 }
 
 export function ClientDialog({ open, onOpenChange, client, onClientSaved }: ClientDialogProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateClientInput | UpdateClientInput>({
     first_name: '',
     last_name: '',
     position: '',
@@ -73,24 +74,13 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
     setError('');
 
     try {
-      const url = client ? `/api/crm/clients/${client.id}` : '/api/crm/clients';
-      const method = client ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        onClientSaved(data.client);
+      let savedClient: Client;
+      if (client) {
+        savedClient = await CRMService.updateClient(client.id, formData as UpdateClientInput);
       } else {
-        setError(data.error || 'Failed to save client');
+        savedClient = await CRMService.createClient(formData as CreateClientInput);
       }
+      onClientSaved(savedClient);
     } catch (error) {
       setError('Failed to save client');
     } finally {
@@ -103,16 +93,8 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/crm/clients/${client.id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        onClientSaved(null);
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to delete client');
-      }
+      await CRMService.deleteClient(client.id);
+      onClientSaved(null);
     } catch (error) {
       setError('Failed to delete client');
     } finally {
@@ -125,17 +107,8 @@ export function ClientDialog({ open, onOpenChange, client, onClientSaved }: Clie
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/crm/clients/${client.id}/contact`, {
-        method: 'POST',
-      });
-
-      if (response.ok) {
-        const updatedClient = await response.json();
-        onClientSaved(updatedClient.client);
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to update last contact');
-      }
+      const updatedClient = await CRMService.updateLastContact(client.id);
+      onClientSaved(updatedClient);
     } catch (error) {
       setError('Failed to update last contact');
     } finally {

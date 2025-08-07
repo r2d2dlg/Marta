@@ -75,6 +75,19 @@ class CRM:
                 return client
             return None
 
+    def get_all_clients(self):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT first_name, last_name, position, email, phone_number, company, notes, last_contact, last_contact_source, ai_insights FROM clients;")
+            clients = []
+            for row in cur.fetchall():
+                client = Client(first_name=row[0], last_name=row[1], position=row[2], email=row[3], phone_number=row[4], company=row[5])
+                client.notes = row[6]
+                client.last_contact = row[7]
+                client.last_contact_source = row[8]
+                client.ai_insights = row[9]
+                clients.append(client)
+            return clients
+
     def update_client(self, email, data):
         with self.conn.cursor() as cur:
             fields = []
@@ -98,7 +111,19 @@ class CRM:
                 FROM sales_funnel sf
                 JOIN clients c ON sf.client_id = c.id;
             """)
-            return cur.fetchall()
+            
+            entries = []
+            for row in cur.fetchall():
+                entries.append({
+                    "id": row[0],
+                    "company": row[1],
+                    "stage": row[2],
+                    "status": row[3],
+                    "notes": row[4],
+                    "estimated_value": str(row[5]),
+                    "close_date": row[6].isoformat() if row[6] else None,
+                })
+            return entries
 
     def get_sales_funnel_entry(self, company_name):
         with self.conn.cursor() as cur:

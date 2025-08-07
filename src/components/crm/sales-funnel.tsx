@@ -4,28 +4,25 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { SalesFunnelDialog } from './sales-funnel-dialog';
+import { CRMService } from '@/lib/crm';
 
 const FUNNEL_STAGES = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 
 export function SalesFunnel() {
-  const [funnelData, setFunnelData] = useState([]);
-  const [allCompanies, setAllCompanies] = useState([]);
+  const [funnelData, setFunnelData] = useState<any[]>([]);
+  const [allCompanies, setAllCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Lead');
+  const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
 
   const [clients, setClients] = useState<{ id: number; company: string }[]>([]);
 
   const fetchClients = async () => {
     try {
-      const response = await fetch('/api/crm/clients');
-      const data = await response.json();
-      if (response.ok) {
-        setClients(data.clients);
-        setAllCompanies(data.clients);
-      } else {
-        console.error('Failed to fetch clients:', data.error);
-      }
+      const data = await CRMService.getAllClients();
+      setClients(data.map(c => ({ id: c.id, company: c.company || '' })));
+      setAllCompanies(data);
     } catch (error) {
       console.error('Error fetching clients:', error);
     }
@@ -34,13 +31,8 @@ export function SalesFunnel() {
   const fetchFunnelData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/crm/sales-funnel');
-      const data = await response.json();
-      if (response.ok) {
-        setFunnelData(data);
-      } else {
-        console.error('Failed to fetch sales funnel data:', data.error);
-      }
+      const data = await CRMService.getAllSalesFunnelEntries();
+      setFunnelData(data);
     } catch (error) {
       console.error('Error fetching sales funnel data:', error);
     } finally {
@@ -51,6 +43,12 @@ export function SalesFunnel() {
   const handleFunnelEntrySaved = () => {
     fetchFunnelData();
     setIsDialogOpen(false);
+    setSelectedEntry(null);
+  };
+
+  const handleEditEntry = (entry: any) => {
+    setSelectedEntry(entry);
+    setIsDialogOpen(true);
   };
 
   // Organize data by funnel stage
@@ -80,7 +78,7 @@ export function SalesFunnel() {
     allCompanies.forEach((client: any) => {
       if (client.company && !companiesWithFunnelEntries.has(client.company)) {
         organized['Lead'].push({
-          id: `client-${client.id}`,
+          id: client.id, // Use client ID as the key
           company: client.company,
           stage: 'Lead',
           status: 'New Lead',
@@ -168,10 +166,13 @@ export function SalesFunnel() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {currentStageData.map((entry: any) => (
-              <div key={entry.id} className={`bg-white border rounded-lg p-4 shadow-sm ${getStageColor(entry.stage)}`}>
+            {currentStageData.map((entry: any, index: number) => (
+              <div key={`${entry.id}-${index}`} className={`bg-white border rounded-lg p-4 shadow-sm ${getStageColor(entry.stage)}`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-lg">{entry.company}</h3>
+                  <Button variant="ghost" size="sm" onClick={() => handleEditEntry(entry)}>
+                    Edit
+                  </Button>
                   <span className={`px-2 py-1 rounded-full text-xs ${getStageColor(entry.stage)}`}>
                     {entry.stage}
                   </span>
@@ -202,6 +203,7 @@ export function SalesFunnel() {
         onOpenChange={setIsDialogOpen}
         onFunnelEntrySaved={handleFunnelEntrySaved}
         clients={clients}
+        entry={selectedEntry}
       />
     </div>
   );
